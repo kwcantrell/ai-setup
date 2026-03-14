@@ -6,15 +6,12 @@ RUN apt-get update && apt-get install -y \
     zstd \
     && rm -rf /var/lib/apt/lists/*
 
-# Stay as root for system package installations (Ollama)
-USER root
-
-# Install Ollama as root
+# Install Ollama as root (install script runs as root)
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
 # Add HEALTHCHECK for container readiness verification
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=2 \
-  CMD curl -f http://localhost:11434/api/tags || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:11434/ || exit 1
 
 # Switch to vscode user and install Claude Code here
 USER vscode
