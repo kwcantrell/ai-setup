@@ -1,0 +1,105 @@
+# Git
+.git/
+.gitignore
+
+# Documentation (keep repo docs, but not generated docs)
+*.md
+README*
+
+# Environment files
+.env*
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Pytest coverage
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE specific
+.idea/
+.vscode/
+.project
+.classpath
+.settings/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Docker artifacts
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.docker/
+
+# Build outputs
+*.tar
+build/
+dist/
+package-lock.json
+
+# Temporary files
+.cache
+tmp/
+temp/
+
+# Ollama models (large - don't include in repo)
+models/
+
+# Claude Code workspace
+.claude/memory/
+.claude/plans/
