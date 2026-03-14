@@ -12,6 +12,10 @@ USER root
 # Install Ollama as root
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
+# Add HEALTHCHECK for container readiness verification
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=2 \
+  CMD curl -f http://localhost:11434/api/tags || exit 1
+
 # Switch to vscode user and install Claude Code here
 USER vscode
 
