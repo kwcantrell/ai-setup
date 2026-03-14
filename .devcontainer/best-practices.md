@@ -8,37 +8,35 @@ This guide covers recommended workflows and important considerations for using t
 
 ### Use a `.dockerignore` File
 
-The repository currently lacks a `.dockerignore` file. When building the container, unnecessary files like `node_modules`, `__pycache__`, `.git/`, and IDE folders can increase build time and image size.
+The repository includes a `.dockerignore` at the project root (`/.dockerignore`) with comprehensive exclusions. This file prevents unnecessary files like `node_modules`, `__pycache__`, `.git/`, and IDE folders from being sent to Docker builds, reducing build time and image size.
 
-**Add to your project root:**
+**Current exclusions include:**
 ```
 .git/
-.gitignore
-*.md
 .env*
 node_modules/
-__pycache__/
 .idea/
 .vscode/
 .pytest_cache/
 .docker/
-Dockerfile
-devcontainer.json
-best-practices.md
+models/
 ```
+
+For new projects, copy this file or create your own with similar exclusions.
 
 ### Dockerfile Recommendations
 
 Current Dockerfile structure is well-optimized:
-- ✅ Uses multi-stage builds implicitly (minimal image)
+- ✅ Uses minimal base image (Ubuntu)
 - ✅ Installs packages as root, then switches to vscode user
-- ✅ Only essential packages installed
-- ❌ Could add `HEALTHCHECK` for container readiness verification
+- ✅ Only essential packages installed (curl, zstd)
+- ✅ Includes HEALTHCHECK for container readiness verification
 
-**Example HEALTHCHECK addition:**
+**Note on HEALTHCHECK:** The current implementation uses `curl -f http://localhost:11434/` which checks port availability. Avoid API-specific paths like `/api/tags` as they may not be available on Ollama startup.
+
 ```dockerfile
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=2 \
-  CMD curl -f http://localhost:11434/api/tags || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:11434/ || exit 1
 ```
 
 ---
@@ -118,11 +116,11 @@ The `.devcontainer/devcontainer.json` uses bind mounts for:
 
 ### Security Checklist Before Sharing Repo
 
-- [ ] No `.env` or credential files committed to repo
+- [x] `.dockerignore` exists at project root - excludes build artifacts, node_modules, IDE folders
+- [ ] No `.env` or credential files committed to repo (except managed credentials)
 - [ ] Workspace doesn't contain sensitive data (keys, passwords)
-- [ ] README documents security considerations
-- [ ] `.dockerignore` excludes build artifacts and node_modules
-- [ ] `.gitignore` configured to prevent accidental commits
+- [ ] README documents security considerations and mount strategy
+- [ ] `.gitignore` configured to prevent accidental commits of work-in-progress
 
 ---
 
@@ -242,16 +240,20 @@ ollama serve &
 
 ## 📖 Feature Scripts Deprecation Status
 
-**The `.devcontainer/features/` directory is deprecated.** All installations are now done in the Dockerfile.
+**The `.devcontainer/features/` directory has been deprecated.** All installations are now done in the Dockerfile:
 
-- ✅ Ollama: Installed as root via install script
-- ✅ Claude Code: Will install as vscode user on container rebuild
-- ❌ Feature scripts kept for reference only (see [Features README](README.md) for details)
+- ✅ Ollama: Installed as root via install script (line 10 of Dockerfile)
+- ✅ Claude Code: Installs as vscode user on container rebuild (line 20)
 
-If you're migrating from an old feature-based setup:
-1. Your existing `devcontainer.json` still works
-2. Use `--update-content` flag for fresh installs if needed
-3. Rebuild once to ensure Claude Code installs for your user
+**Why removed:**
+- Simplifies builds with single source of truth
+- Avoids feature dependency issues
+- User-level installs for better security (vs root)
+
+**Migration from features-based setup:**
+1. Your existing `devcontainer.json` still works without changes
+2. Ollama needs to be started manually (`ollama serve &`) before first use
+3. Claude Code auto-installs on container rebuild; no action needed
 
 ---
 
